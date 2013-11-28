@@ -17,6 +17,8 @@ syn sync minlines=100
 " CoffeeScript identifiers can have dollar signs.
 setlocal isident+=$
 
+syn match coffeeArrow "->" contained
+syn match coffeeFatArrow "=>" contained
 " These are `matches` instead of `keywords` because vim's highlighting
 " priority for keywords is higher than matches. This causes keywords to be
 " highlighted inside matches, even if a match says it shouldn't contain them --
@@ -117,6 +119,18 @@ endif
 syn match coffeeObjAssign /@\?\I\i*\s*\ze::\@!/ contains=@coffeeIdentifier display
 hi def link coffeeObjAssign Identifier
 
+ " A function definition
+syn match coffeeFunction /@\?\I.*\w\+\ze\s*=\s*\((.\{-})\)\=\s*\(=>\|->\)/ display
+hi def link coffeeFunction coffeeStatement
+
+ " A method definition
+syn match coffeeMethod /@\?\I.*\w\+\ze\s*:\s*\((.\{-})\)\=\s*\(=>\|->\)/ display
+hi def link coffeeMethod coffeeObjAssign
+
+syn match coffeeArrow /->\|=>/ display
+hi def link coffeeArrow Keyword
+
+
 syn keyword coffeeTodo TODO FIXME XXX contained
 hi def link coffeeTodo Todo
 
@@ -201,6 +215,10 @@ hi def link coffeeBracket coffeeBlock
 hi def link coffeeCurly coffeeBlock
 hi def link coffeeParen coffeeBlock
 
+"Make changes here to override Parens"
+syn match coffeeArgument /([^()]*)\ze\s*\(=>\|->\)/ display
+hi def link coffeeArgument coffeeStatement
+
 " This is used instead of TOP to keep things coffee-specific for good
 " embedding. `contained` groups aren't included.
 syn cluster coffeeAll contains=coffeeStatement,coffeeRepeat,coffeeConditional,
@@ -214,8 +232,11 @@ syn cluster coffeeAll contains=coffeeStatement,coffeeRepeat,coffeeConditional,
 \                              coffeeHeredoc,coffeeSpaceError,
 \                              coffeeSemicolonError,coffeeDotAccess,
 \                              coffeeProtoAccess,coffeeCurlies,coffeeBrackets,
-\                              coffeeParens
+\                              coffeeParens,coffeeFunction,coffeeMethod
 
 if !exists('b:current_syntax')
   let b:current_syntax = 'coffee'
 endif
+hi link coffeeFunction Function
+hi link coffeeMethod Function
+hi link coffeeObjAssign Statement
